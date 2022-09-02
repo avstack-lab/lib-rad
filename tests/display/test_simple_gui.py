@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author: Spencer H
-# @Date:   2022-09-01
+# @Date:   2022-09-02
 # @Last Modified by:   Spencer H
 # @Last Modified date: 2022-09-02
 # @Description:
@@ -11,23 +11,22 @@
 import rad
 
 
-def test_urad_start_stop():
+def test_init_gui():
+    disp = rad.display.SimpleRadarGui()
+    disp.close()
+
+
+def test_show_gui():
+    disp = rad.display.SimpleRadarGui()
     radar = rad.interfaces.URadRadar()
     try:
         radar.start()
-    finally:
-        radar.stop()
-
-
-def test_urad_get_detections():
-    radar = rad.interfaces.URadRadar(verbose=True)
-    try:
-        radar.start()
         n_objs = []
-        for _ in range(10):
+        for i in range(20):
             objects, exit_code = radar()
-            assert exit_code in [0, 1]
             n_objs.append(len(objects))
+            disp.update(objects)
         assert sum(n_objs) > 0
     finally:
         radar.stop()
+        disp.close()

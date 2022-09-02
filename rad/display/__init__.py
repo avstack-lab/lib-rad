@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author: Spencer H
-# @Date:   2022-09-01
+# @Date:   2022-09-02
 # @Last Modified by:   Spencer H
 # @Last Modified date: 2022-09-02
 # @Description:
@@ -8,5 +8,4 @@
 
 """
 
-import rad.interfaces
-import rad.display
+from .simple_gui import SimpleRadarGui

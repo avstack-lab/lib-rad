@@ -2,7 +2,7 @@
 # @Author: Spencer H
 # @Date:   2022-09-01
 # @Last Modified by:   Spencer H
-# @Last Modified date: 2022-09-01
+# @Last Modified date: 2022-09-02
 # @Description:
 """
 
@@ -10,10 +10,11 @@
 
 import os, sys
 import serial
-from time import sleep
+import struct
+import numpy as np
+from time import time, sleep
 from .base import Radar
 
-syncPattern = 0x708050603040102
 
 
 class URadRadar(Radar):
@@ -26,6 +27,59 @@ class URadRadar(Radar):
         self.data_port = None
         self.verbose = verbose
         self.started = False
+        self.packet_header = bytearray([])
+
+        self.tlv_header_len = 8
+        self.header_len = 40
+        self.sync_pattern = 0x708050603040102
+
+    def __call__(self):
+        """
+        Returns an exit code based on what happened
+        0 - detected some objects
+        1 - saw payload but no objects registered
+        2 - sync pattern not correct
+        """
+        time_packet = time()
+        self.packet_header += self.data_port.read(self.header_len - len(self.packet_header))
+        sync, version, total_packet_len, platform, \
+            frame_number, time_cpu_cycles, num_detected_objs, \
+            num_tlvs, sub_frame_number = struct.unpack('Q8I', self.packet_header[:self.header_len])
+
+        if sync == self.sync_pattern:
+            self.packet_header = bytearray([])
+            packet_payload = self.data_port.read(total_packet_len - self.header_len)
+            objects = np.zeros((num_detected_objs, 6))
+            for i in range(num_tlvs):
+                tlv_type, tlv_length = struct.unpack('2I', packet_payload[:self.tlv_header_len])
+                if tlv_type > 20 or tlv_length > 10000:
+                    packet_header = bytearray([])
+                    break
+                packet_payload = packet_payload[self.tlv_header_len:]
+                if tlv_type == 1:
+                    for j in range(num_detected_objs):
+                        x, y, z, v = struct.unpack('4f', packet_payload[:16])
+                        objects[j, 0] = x
+                        objects[j, 1] = y
+                        objects[j, 2] = z
+                        objects[j, 3] = v
+                        packet_payload = packet_payload[16:]
+                elif tlv_type == 7:
+                    for j in range(num_detected_objs):
+                        snr, noise = struct.unpack('2H', packet_payload[:4])
+                        objects[j, 4] = snr
+                        objects[j, 5] = noise
+                        packet_payload = packet_payload[4:]
+            if num_detected_objs > 0:
+                exit_code = 0
+            else:
+                exit_code = 1
+        else:
+            exit_code = 2
+            objects = np.zeros((0,6))
+            self.packet_header = self.packet_header[1:]
+
+        return objects, exit_code
 
     def start(self):
         if self.started:
@@ -65,11 +119,12 @@ class URadRadar(Radar):
         self.data_port = data_port
         self.started = True
 
-    def stop(self):
+    def stop(self, sleep_time=3):
         print('Closing ports...', end='', flush=True)
         if self.config_port is not None:
             self.config_port.close()
         if self.data_port is not None:
             self.data_port.close()
         self.started = False
+        sleep(sleep_time)
         print('done')
