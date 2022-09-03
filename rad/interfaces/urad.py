@@ -8,16 +8,19 @@
 
 """
 
+import itertools
 import os, sys
 import serial
 import struct
 import numpy as np
 from time import time, sleep
+from rad import detections
 from .base import Radar
 
 
-
 class URadRadar(Radar):
+    id_iter = itertools.count()
+
     def __init__(self, config_port_name='/dev/ttyUSB0', data_port_name='/dev/ttyUSB1',
             config_file='chirp_config.cfg', verbose=False):
         self.config_port_name = config_port_name
@@ -28,6 +31,10 @@ class URadRadar(Radar):
         self.verbose = verbose
         self.started = False
         self.packet_header = bytearray([])
+
+        self.noise_razel = [1e-3, 1*np.pi/180, 1*np.pi/180]
+        self.noise_xyz = [1e-3, 1e-3, 1e-3]  # an approximation
+        self.ID = next(self.id_iter)
 
         self.tlv_header_len = 8
         self.header_len = 40
@@ -79,7 +86,13 @@ class URadRadar(Radar):
             objects = np.zeros((0,6))
             self.packet_header = self.packet_header[1:]
 
-        return objects, exit_code
+        converted_objects = []
+        for i in range(objects.shape[0]):
+            converted_objects.append(detections.RadarDetection3D_XYZ(
+                self.ID, time_packet, objects[i,0], objects[i,1],
+                objects[i,2], objects[i,3], self.noise_xyz, snr))
+
+        return converted_objects, exit_code
 
     def start(self):
         if self.started:
