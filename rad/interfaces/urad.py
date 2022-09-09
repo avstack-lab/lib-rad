@@ -2,7 +2,7 @@
 # @Author: Spencer H
 # @Date:   2022-09-01
 # @Last Modified by:   Spencer H
-# @Last Modified date: 2022-09-02
+# @Last Modified date: 2022-09-09
 # @Description:
 """
 
@@ -22,7 +22,7 @@ class URadRadar(Radar):
     id_iter = itertools.count()
 
     def __init__(self, config_port_name='/dev/ttyUSB0', data_port_name='/dev/ttyUSB1',
-            config_file='chirp_config.cfg', verbose=False):
+            config_file='chirp_config.cfg', snr_floor=8, verbose=False):
         self.config_port_name = config_port_name
         self.data_port_name = data_port_name
         self.config_file = os.path.join(os.path.dirname(__file__), 'config', config_file)
@@ -34,6 +34,7 @@ class URadRadar(Radar):
 
         self.noise_razel = [1e-3, 1*np.pi/180, 1*np.pi/180]
         self.noise_xyz = [1e-3, 1e-3, 1e-3]  # an approximation
+        self.snr_floor = snr_floor
         self.ID = next(self.id_iter)
 
         self.tlv_header_len = 8
@@ -88,9 +89,10 @@ class URadRadar(Radar):
 
         converted_objects = []
         for i in range(objects.shape[0]):
-            converted_objects.append(detections.RadarDetection3D_XYZ(
-                self.ID, time_packet, objects[i,0], objects[i,1],
-                objects[i,2], objects[i,3], self.noise_xyz, snr))
+            if objects[i,4] > self.snr_floor:
+                converted_objects.append(detections.RadarDetection3D_XYZ(
+                    self.ID, time_packet, objects[i,0], objects[i,1],
+                    objects[i,2], objects[i,3], self.noise_xyz, objects[i,4]))
 
         return converted_objects, exit_code
 
