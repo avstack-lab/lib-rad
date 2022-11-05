@@ -2,7 +2,7 @@
 # @Author: Spencer H
 # @Date:   2022-09-02
 # @Last Modified by:   Spencer H
-# @Last Modified date: 2022-09-02
+# @Last Modified date: 2022-09-09
 # @Description:
 """
 
@@ -30,6 +30,11 @@ class RadarDetection3D_XYZ(_RadarDetection):
     def __init__(self, source_ID, t, x, y, z, rrt, noise, snr=None):
         """
         r - noise
+
+        Coordinate frame is:
+            - x: forward
+            - y: left
+            - z: up
         """
         self.source_ID = source_ID
         self.t = t
