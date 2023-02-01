@@ -27,6 +27,8 @@ class _RadarDetection():
 
 
 class RadarDetection3D_XYZ(_RadarDetection):
+    """Radar detection class for detections in cartesian coordinates"""
+
     def __init__(self, source_ID, t, x, y, z, rrt, noise, snr=None):
         """
         r - noise
@@ -46,11 +48,13 @@ class RadarDetection3D_XYZ(_RadarDetection):
         self.snr = snr
         self._hash = hash(f'{self.source_ID} {self.t} {self.x} {self.y} {self.z} {self.rrt} {self.noise} {self.snr}')
 
-    def convert_to(self, format_as, noise=None):
+    def convert_to(self, format_as='razel', noise=None):
+        """Converts the format of detections"""
         if format_as == 'estimators':
-            import estimators
-            new_detection = estimators.measurements.PositionMeasurement_3D_XYZ(
-                self.source_ID, self.t, r=self.noise, x=self.x, y=self.y, z=self.z)
+            raise NotImplementedError('estimators library is not yet integrated')
+            # import estimators
+            # new_detection = estimators.measurements.PositionMeasurement_3D_XYZ(
+            #     self.source_ID, self.t, r=self.noise, x=self.x, y=self.y, z=self.z)
         elif format_as == 'razel':
             razel = cartesian_to_spherical(np.array([self.x, self.y, self.z]))
             new_detection = RadarDetection3D_RAZEL(self.source_ID, self.t,
@@ -61,6 +65,7 @@ class RadarDetection3D_XYZ(_RadarDetection):
 
 
 class RadarDetection3D_RAZEL(_RadarDetection):
+    """Radar detection class for detections in spherical coordinates"""
     def __init__(self, source_ID, t, rng, az, el, rrt, noise, snr=None):
         self.source_ID = source_ID
         self.t = t
@@ -73,10 +78,12 @@ class RadarDetection3D_RAZEL(_RadarDetection):
         self._hash = hash(f'{self.source_ID} {self.t} {self.rng} {self.az} {self.el} {self.rrt} {self.noise} {self.snr}')
 
     def convert_to(self, format_as, noise=None):
+        """Convert the format to some other"""
         if format_as == 'estimators':
-            import estimators
-            new_detection = estimators.measurements.PositionMeasurement_3D_RAZEL(
-                self.source_ID, self.t, self.noise, rng=self.rng, az=self.az, el=self.el)
+            raise NotImplementedError('estimators library is not yet integrated')
+            # import estimators
+            # new_detection = estimators.measurements.PositionMeasurement_3D_RAZEL(
+            #     self.source_ID, self.t, self.noise, rng=self.rng, az=self.az, el=self.el)
         elif format_as == 'cartesian':
             xyz = spherical_to_cartesian(np.array([self.rng, self.az, self.el]))
             new_detection = RadarDetection3D_XYZ(self.source_ID, self.t,

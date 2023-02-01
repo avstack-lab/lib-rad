@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "lib-rad"
+version = "0.1.0-alpha.1"
+description = "Radar sensor utility functions"
+authors = ["Spencer Hallyburton <spencer.hallyburton@duke.edu>"]
+readme = "README.md"
+license = "Apache-2.0"
+homepage = "https://avstack.org"
+repository = "https://github.com/avstack-lab/lib-rad"
+keywords = ["radar", "Texas Instruments"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+]
+packages = [{include = "rad"}]
+
+[tool.poetry.dependencies]
+python = "~3.8"
+pyqtgraph = "^0.13.1"
+pyqt5 = "^5.15.8"
+pyserial = "^3.5"
+numpy = "^1.24"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7"
+pytest-cov = "^4"
+bandit = "^1.7"
+black = "~22.12.0"
+mypy = "^0"
+isort = "^5.11"
+flake8 = "^5.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -s"
+testpaths = [
+    "tests",
+    "integration",
+]
+
+[build-system]
+requires = [
+    "poetry-core",
+]
+build-backend = "poetry.core.masonry.api"

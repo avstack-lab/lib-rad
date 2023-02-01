@@ -18,4 +18,4 @@ setup(name='rad',
       author='Spencer Hallyburton',
       author_email='spencer@shally.dev',
       packages=['rad'],
-      install_requires=['numpy', 'pyserial', 'pyqtgraph'])
+      install_requires=['numpy', 'pyserial', 'pyqtgraph', 'pyqt5'])

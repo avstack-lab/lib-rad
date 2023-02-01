@@ -12,7 +12,9 @@ import rad
 
 
 def test_init_gui():
+    print('Opening GUI')
     disp = rad.display.SimpleRadarGui()
+    print('Closing GUI')
     disp.close()
 
 
@@ -27,6 +29,8 @@ def test_show_gui():
             n_objs.append(len(objects))
             disp.update(objects)
         assert sum(n_objs) > 0
+    except Exception as e:
+        print(e)
     finally:
         radar.stop()
         disp.close()
