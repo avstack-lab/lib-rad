@@ -95,7 +95,7 @@ class Radar:
             self.processor.performProcessing(self.streamer.currentPacket)
             xyz_vel_coordinates = self.processor.xyz_vel_coordinates
         else:
-            xyz_vel_coordinates = np.zeros((0, 4))
+            xyz_vel_coordinates = None
         return xyz_vel_coordinates
 
     def stream_serial(self):
