@@ -108,7 +108,7 @@ class Radar:
         while True:
             try:
                 xyz_vel = self.read_serial()
-                time.sleep(self.refresh_delay)
+                # time.sleep(self.refresh_delay)
             except KeyboardInterrupt:
                 self.streamer.stop_serial_stream()
                 if self.verbose:
@@ -133,7 +133,7 @@ class Radar:
                 # for each detected point)
                 xyz_vel_coordinates = self.processor.xyz_vel_coordinates
             
-            time.sleep(self.refresh_delay)
+            # time.sleep(self.refresh_delay)
         if self.verbose:
             print("Streamer.stream_file: streaming complete")
 
