@@ -15,7 +15,7 @@ classifiers = [
 packages = [{include = "rad"}]
 
 [tool.poetry.dependencies]
-python = "~3.8"
+python = "~3.10"
 pyqtgraph = "^0.13.1"
 pyqt5 = "^5.15.8"
 pyserial = "^3.5"
